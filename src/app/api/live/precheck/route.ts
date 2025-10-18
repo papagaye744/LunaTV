@@ -14,6 +14,14 @@ export async function GET(request: NextRequest) {
   if (!url) {
     return NextResponse.json({ error: 'Missing url' }, { status: 400 });
   }
+
+  // 通过配置判断是否启用预检查，后面放到直播源配置
+  const enablePrecheck = process.env.LIVE_PRECHECK_ENABLE || 'true'
+
+  if (enablePrecheck === 'false') {
+    return NextResponse.json({ success: true, type: 'm3u8' }, { status: 200 });
+  }
+
   const config = await getConfig();
   const liveSource = config.LiveConfig?.find((s: any) => s.key === source);
   if (!liveSource) {
